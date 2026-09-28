@@ -22,6 +22,11 @@ export default function Game() {
 		console.log(x.toFixed(4), y.toFixed(4));
 	}
 
+	function handleChose(name: string) {
+		console.log(`Escolheu: ${name}`);
+		setClick(null);
+	}
+
 	return (
 		<section>
 			<div className="flex items-center gap-2">
@@ -69,7 +74,9 @@ export default function Game() {
 										key={char.name}
 										
 									>
-										<button className="cursor-pointer w-20 hover:bg-white hover:text-black bg-black text-white flex items-center p-2 gap-2">
+										<button
+											onClick={() => handleChose(char.name)} 
+											className="cursor-pointer w-20 hover:bg-white hover:text-black bg-black text-white flex items-center p-2 gap-2">
 											<div className="">
 												<img src={char.imgSrc} alt={char.name} />
 											</div>
