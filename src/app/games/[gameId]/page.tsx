@@ -9,6 +9,7 @@ type ClickPoint = { x: number; y: number }; // valores entre 0 e 1
 export default function Game() {
 	const { gameId } = useParams<{ gameId: string }>();
 	const [click, setClick] = useState<ClickPoint | null>(null);
+	const [started, setStarted] = useState<boolean>(false);
 
 	const level = getLevel(Number(gameId));
 
@@ -26,6 +27,30 @@ export default function Game() {
 		console.log(`Escolheu: ${name}`);
 		setClick(null);
 	}
+
+	if (!started) return (
+		<section>
+			<div className="flex items-center gap-2">
+				<h2>You must find</h2>
+				<div className="flex">
+
+					{level.characters.map((char) =>
+						<div
+							key={char.name}
+							className="w-20 p-2 "
+						>
+							<div className="bg-white">
+								<img src={char.imgSrc} alt={char.name} />
+							</div>
+							<span>{char.name}</span>
+						</div>
+					)}
+				</div>
+				<p>Can you find all?</p>
+			</div>
+			<button onClick={() => setStarted(true)}>Start</button>
+		</section>
+	)
 
 	return (
 		<section>
