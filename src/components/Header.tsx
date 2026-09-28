@@ -1,15 +1,18 @@
+import Link from "next/link";
+
 export default function Header() {
 
 	return (
-		<header className="border-b py-2 px-2 sm:px-0">
-			<div className="container mx-auto">
-
-				<h1
-					className="flex items-center gap-1"
-				>
-					<span className="w-10 h-10 bg-white flex items-center justify-center text-black rounded-full font-bold">WW</span>
-					<span className="text-xl font-bold">Where's Waldo</span>
-				</h1>
+		<header className="site-header">
+			<div className="site-header__inner">
+				<Link className="brand-lockup" href="/" aria-label="Where's Waldo home">
+					<span className="brand-mark" aria-hidden="true">W</span>
+					<span>
+						<span className="brand-name">Where&apos;s Waldo?</span>
+						<span className="brand-caption">The great search</span>
+					</span>
+				</Link>
+				<span className="header-note">Keep your eyes open</span>
 			</div>
 		</header>
 	)
