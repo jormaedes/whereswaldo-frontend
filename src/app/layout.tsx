@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Where is Waldo",
-  description: "",
+  title: "Where's Waldo? | The Great Search",
+  description: "Find Waldo and friends in a collection of busy scenes.",
   authors: {
     name: 'Jormaedes Luís',
   }
