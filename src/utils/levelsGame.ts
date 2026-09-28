@@ -15,7 +15,16 @@ const levelsGame = [
 		imgSrc: '/assets/odlaw.webp'
 	  },
 	]
-  }
+  },
+  {
+	imgSrc: '/assets/img2.webp',
+	characters: [
+	  {
+		name: 'waldo',
+		imgSrc: '/assets/waldo.webp'
+	  },
+	]
+  },
 ]
 
 function getLevel(id: number) {
