@@ -13,44 +13,35 @@ interface LevelProps {
 
 function CharacterElement({ imgSrc, name }: Character) {
 	return (
-		<div className="w-10 h-10 rounded-full bg-amber-50 z-2 relative">
-			<img
-				src={imgSrc}
-				alt={name}
-			/>
+		<div className="character-peek" title={name}>
+			<img src={imgSrc} alt={name} />
 		</div>
 	)
 }
 
 export default function Level({ imgSrc, characters, gameId }: LevelProps) {
-
 	return (
-		<div
-			className="w-75 h-62.5 bg-amber-900 relative"
+		<Link
+			className="level-card"
+			href={`/games/${gameId}`}
+			aria-label={`Play scene ${String(gameId + 1).padStart(2, "0")}`}
 		>
-			<img
-				src={imgSrc}
-				alt="level 1"
-				style={{
-					objectFit: 'cover',
-				}}
-				className="w-75 h-62.5 absolute top-0 left-0 z-1"
-			/>
-			<div>
-				{
-					characters.map((char, index) =>
-						<CharacterElement
-							key={index}
-							name={char.name}
-							imgSrc={char.imgSrc}
-						/>
-					)
-				}
+			<div className="level-card__image">
+				<img src={imgSrc} alt={`Crowded hidden-object scene ${gameId + 1}`} />
+				<span className="scene-number">SCENE {String(gameId + 1).padStart(2, "0")}</span>
+				<span className="scene-arrow" aria-hidden="true">↗</span>
 			</div>
-			<Link
-				className="relative z-2 bg-amber-400"
-				href={`/games/${gameId}`}
-			> Play this level </Link>
-		</div>
+			<div className="level-card__details">
+				<div>
+					<h3>Scene {String(gameId + 1).padStart(2, "0")}</h3>
+					<p>{characters.length} {characters.length === 1 ? "character" : "characters"} to find</p>
+				</div>
+				<div className="character-peeks" aria-label={`Targets: ${characters.map((character) => character.name).join(", ")}`}>
+					{characters.map((character) => (
+						<CharacterElement key={character.name} {...character} />
+					))}
+				</div>
+			</div>
+		</Link>
 	)
 }

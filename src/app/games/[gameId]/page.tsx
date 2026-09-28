@@ -17,16 +17,14 @@ function formatTime(total: number) {
 
 function CharacterCard({ name, imgSrc, found = false }: { name: string; imgSrc: string; found?: boolean }) {
 	return (
-		<div className={`w-14 sm:w-20 p-1 sm:p-2 text-center text-xs sm:text-sm ${found ? "opacity-60" : ""}`}>
-			<div className="relative bg-white">
-				<img src={imgSrc} alt={name} className="w-full h-auto" />
+		<div className={`target-card ${found ? "is-found" : ""}`}>
+			<div className="target-card__portrait">
+				<img src={imgSrc} alt={name} />
 				{found && (
-					<div className="absolute inset-0 flex items-center justify-center bg-green-500/60 text-xl sm:text-3xl font-bold text-white">
-						✓
-					</div>
+					<span className="target-card__found" aria-label="Found">✓</span>
 				)}
 			</div>
-			<span className={found ? "line-through" : ""}>{name}</span>
+			<span>{name}</span>
 		</div>
 	);
 }
@@ -58,7 +56,7 @@ export default function Game() {
 		return () => clearTimeout(id);
 	}, [message]);
 
-	if (!level) return <p className="p-4">Level not found.</p>;
+	if (!level) return <p className="game-page">Scene not found.</p>;
 
 	const isFound = (name: string) => found.some((f) => f.name === name);
 
@@ -99,62 +97,42 @@ export default function Game() {
 	}
 
 	if (!started) return (
-		<section className="mx-auto flex max-w-3xl flex-col items-center gap-4 p-4 text-center">
-			<h2 className="text-xl sm:text-2xl">You must find</h2>
-			<div className="flex flex-wrap justify-center">
+		<section className="game-page">
+			<div className="game-intro">
+				<span className="eyebrow">Scene {String(Number(gameId) + 1).padStart(2, "0")}</span>
+				<h2>Who are you looking for?</h2>
+				<p className="game-intro__copy">Keep these faces in mind before the clock starts.</p>
+				<div className="target-roster">
 				{level.characters.map((char) => (
 					<CharacterCard key={char.name} name={char.name} imgSrc={char.imgSrc} />
 				))}
-			</div>
-			<p>Can you find all?</p>
-			<div className="flex gap-2">
-
+				</div>
+				<div className="game-intro__actions">
 				<button
 					onClick={() => router.back()}
-					className="cursor-pointer rounded bg-white px-6 py-2 text-black hover:bg-gray-200"
+					className="button-secondary"
 				>
-					Voltar
+					Back
 				</button>
 				<button
 					onClick={() => setStarted(true)}
-					className="cursor-pointer rounded bg-white px-6 py-2 text-black hover:bg-gray-200"
+					className="button-primary"
 				>
-					Start
+					Start searching
 				</button>
+				</div>
 			</div>
 
-
-			{/* Em vez da imagem vou colocar a lista dos que já venceram este nível */}
-			<div className="flex flex-col gap-2 w-85">
-				<h2>SCORES</h2>
-				{/* Depois farei uma tabela */}
-				<div className="flex bg-white py-2 px-4 text-black w-full justify-between items-center">
-					<p>
-						Nome
-					</p>
-
-					<p>
-						DATA
-					</p>
-					<p>
-						TEMPO
-					</p>
+			<div className="scoreboard">
+				<div className="scoreboard__heading">
+					<h3>Recent searches</h3>
+					<span>Scene {String(Number(gameId) + 1).padStart(2, "0")}</span>
 				</div>
-				{/* Um array que virá da api */}
-				<div className="flex bg-white py-2 px-4 text-black w-full justify-between items-center">
-					<p>
-						{/* Nome */}
-						Igris
-					</p>
-
-					<p>
-						{/* DATA -> DD/MM/YYY  */}
-						28/09/2026
-					</p>
-					<p>
-						{/* TEMPO -> mm:ss */}
-						01:02
-					</p>
+				<div className="scoreboard__row scoreboard__row--head">
+					<span>Player</span><span>Date</span><span>Time</span>
+				</div>
+				<div className="scoreboard__row">
+					<span>Igris</span><span>28/09/2026</span><span>01:02</span>
 				</div>
 			</div>
 		</section>
@@ -166,11 +144,12 @@ export default function Game() {
 	const remaining = level.characters.filter((c) => !isFound(c.name));
 
 	return (
-		<section className="mx-auto max-w-6xl p-2 sm:p-4">
-			<header className="flex flex-wrap items-center justify-between gap-2">
-				<div className="flex flex-wrap items-center gap-1 sm:gap-2">
-					<h2 className="text-sm sm:text-base">You must find</h2>
-					<div className="flex flex-wrap">
+		<section className="game-page">
+			<header className="game-toolbar">
+				<div className="game-toolbar__left">
+					<Link className="game-back" href="/">← Scenes</Link>
+					<h2 className="game-scene-title">Scene {String(Number(gameId) + 1).padStart(2, "0")}</h2>
+					<div className="target-roster">
 						{level.characters.map((char) => (
 							<CharacterCard
 								key={char.name}
@@ -182,26 +161,26 @@ export default function Game() {
 					</div>
 				</div>
 
-				<div className="flex items-center gap-4 font-mono text-lg sm:text-xl">
-					<span>{found.length}/{total}</span>
-					<span>{formatTime(seconds)}</span>
+				<div className="game-status" aria-live="polite">
+					<span className="game-status__count">{found.length} / {total} found</span>
+					<span className="game-status__time">{formatTime(seconds)}</span>
 				</div>
 			</header>
 
-			<div className="mt-2 flex w-full justify-center">
-				<div className="relative w-fit">
+			<div className="flex w-full justify-center">
+				<div className="game-board relative">
 					<img
 						onClick={handleClick}
-						className="h-auto max-w-full cursor-crosshair"
+						className="game-board__image"
 						src={level.imgSrc}
-						alt={`level ${gameId}`}
+						alt={`Scene ${Number(gameId) + 1}`}
 					/>
 
 					{/* marcadores permanentes dos personagens já encontrados */}
 					{found.map((f) => (
 						<div
 							key={f.name}
-							className="pointer-events-none absolute aspect-square w-[5%] min-w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-green-500"
+								className="pointer-events-none absolute aspect-square w-[5%] min-w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-green-500"
 							style={{ left: `${f.x * 100}%`, top: `${f.y * 100}%` }}
 						/>
 					))}
@@ -214,7 +193,7 @@ export default function Game() {
 							/>
 
 							<div
-								className="absolute z-10 w-max bg-black shadow-lg"
+								className="character-menu"
 								style={{
 									...(flipX
 										? { right: `${(1 - click.x) * 100 + 2}%` }
@@ -229,9 +208,8 @@ export default function Game() {
 										key={char.name}
 										type="button"
 										onClick={() => handleChose(char.name)}
-										className="flex w-full cursor-pointer items-center gap-2 bg-black p-2 text-xs text-white hover:bg-white hover:text-black sm:text-sm"
 									>
-										<img src={char.imgSrc} alt={char.name} className="size-8 sm:size-12 object-contain" />
+										<img src={char.imgSrc} alt="" />
 										<span>{char.name}</span>
 									</button>
 								))}
@@ -245,7 +223,7 @@ export default function Game() {
 			{message && (
 				<div
 					role="status"
-					className={`fixed bottom-4 left-1/2 z-30 -translate-x-1/2 rounded px-4 py-2 text-white ${message.ok ? "bg-green-600" : "bg-red-600"}`}
+					className={`game-toast ${message.ok ? "" : "is-error"}`}
 				>
 					{message.text}
 				</div>
@@ -253,11 +231,11 @@ export default function Game() {
 
 			{/* fim de jogo */}
 			{finished && (
-				<div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
-					<div className="w-full max-w-sm rounded bg-white p-6 text-center text-black">
+				<div className="game-finish">
+					<div className="game-finish__content">
 						<h2 className="text-xl font-bold">You found them all!</h2>
-						<p className="mt-2 font-mono text-3xl">{formatTime(seconds)}</p>
-						<Link href="/" className="mt-4 inline-block rounded bg-black px-4 py-2 text-white">
+						<p className="game-finish__time">{formatTime(seconds)}</p>
+						<Link href="/" className="button-primary">
 							Back to levels
 						</Link>
 					</div>
