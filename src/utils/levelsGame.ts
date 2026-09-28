@@ -25,6 +25,15 @@ const levelsGame = [
 	  },
 	]
   },
+  {
+	imgSrc: '/assets/img3.webp',
+	characters: [
+	  {
+		name: 'waldo',
+		imgSrc: '/assets/waldo.webp'
+	  },
+	]
+  },
 ]
 
 function getLevel(id: number) {
