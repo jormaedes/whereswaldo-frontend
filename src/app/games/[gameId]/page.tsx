@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getLevel } from "@/utils/levelsGame";
 import { useEffect, useState, type MouseEvent } from "react";
 
@@ -38,6 +38,7 @@ export default function Game() {
 	const [found, setFound] = useState<FoundChar[]>([]);
 	const [seconds, setSeconds] = useState<number>(0);
 	const [message, setMessage] = useState<Message | null>(null);
+	const router = useRouter();
 
 	const level = getLevel(Number(gameId));
 	const total = level?.characters.length ?? 0;
@@ -106,14 +107,56 @@ export default function Game() {
 				))}
 			</div>
 			<p>Can you find all?</p>
-			<button
-				onClick={() => setStarted(true)}
-				className="cursor-pointer rounded bg-white px-6 py-2 text-black hover:bg-gray-200"
-			>
-				Start
-			</button>
+			<div className="flex gap-2">
 
-			{/* Talvez eu coloque aqui a imagem desfocada */}
+				<button
+					onClick={() => router.back()}
+					className="cursor-pointer rounded bg-white px-6 py-2 text-black hover:bg-gray-200"
+				>
+					Voltar
+				</button>
+				<button
+					onClick={() => setStarted(true)}
+					className="cursor-pointer rounded bg-white px-6 py-2 text-black hover:bg-gray-200"
+				>
+					Start
+				</button>
+			</div>
+
+
+			{/* Em vez da imagem vou colocar a lista dos que já venceram este nível */}
+			<div className="flex flex-col gap-2 w-85">
+				<h2>SCORES</h2>
+				{/* Depois farei uma tabela */}
+				<div className="flex bg-white py-2 px-4 text-black w-full justify-between items-center">
+					<p>
+						Nome
+					</p>
+
+					<p>
+						DATA
+					</p>
+					<p>
+						TEMPO
+					</p>
+				</div>
+				{/* Um array que virá da api */}
+				<div className="flex bg-white py-2 px-4 text-black w-full justify-between items-center">
+					<p>
+						{/* Nome */}
+						Igris
+					</p>
+
+					<p>
+						{/* DATA -> DD/MM/YYY  */}
+						28/09/2026
+					</p>
+					<p>
+						{/* TEMPO -> mm:ss */}
+						01:02
+					</p>
+				</div>
+			</div>
 		</section>
 	);
 
