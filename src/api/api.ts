@@ -14,7 +14,6 @@ interface GuessResponse {
 }
 
 export async function guess({gameId, characterName, x, y} : guessType) : Promise<GuessResponse> {
-    console.log(API_URL)
     const response = await fetch(`${API_URL}/guess`, {
         method: 'POST',
         headers: {
