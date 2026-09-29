@@ -476,6 +476,13 @@ button {
   font-family: var(--font-geist-mono), monospace;
 }
 
+.scoreboard__empty {
+  margin: 0;
+  padding: 14px;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
 .game-toolbar {
   display: flex;
   align-items: center;
@@ -655,6 +662,42 @@ button {
   font-family: var(--font-geist-mono), monospace;
   font-size: 42px;
   font-weight: 700;
+}
+
+.game-finish__form {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.game-finish__form label {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.game-finish__form input {
+  min-height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: white;
+  color: var(--foreground);
+  font: inherit;
+}
+
+.game-finish__form .button-primary {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.game-finish__form .button-primary:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.game-finish__error {
+  margin: 0;
+  color: #a83127;
+  font-size: 12px;
 }
 
 @media (max-width: 700px) {

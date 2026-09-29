@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getLevel } from "@/utils/levelsGame";
-import { useEffect, useState, type MouseEvent } from "react";
-import { guess, getWinners, type Winner } from "@/api/api";
+import { useEffect, useState, type FormEvent, type MouseEvent } from "react";
+import { guess, getWinners, registerWinner, type Winner } from "@/api/api";
 
 type Point = { x: number; y: number }; // valores entre 0 e 1
 type FoundChar = Point & { name: string };
@@ -47,6 +47,9 @@ export default function Game() {
 	const [message, setMessage] = useState<Message | null>(null);
 	const router = useRouter();
 	const [winners, setWinners] = useState<Winner[]>([]);
+	const [playerName, setPlayerName] = useState("");
+	const [savingWinner, setSavingWinner] = useState(false);
+	const [winnerError, setWinnerError] = useState<string | null>(null);
 
 	const level = getLevel(Number(gameId));
 	const total = level?.characters.length ?? 0;
@@ -119,6 +122,42 @@ export default function Game() {
 		setClick(null);
 	}
 
+	async function handleRegisterWinner(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (savingWinner) return;
+		if (!playerName.trim()) {
+			setWinnerError("Enter your name to save your result.");
+			return;
+		}
+
+		setSavingWinner(true);
+		setWinnerError(null);
+
+		try {
+			const winner = await registerWinner({
+				name: playerName.trim(),
+				scene: Number(gameId),
+				timeMs: seconds * 1000,
+			});
+
+			if (!winner) {
+				setWinnerError("Could not save your result. Please try again.");
+				return;
+			}
+
+			setWinners((current) => [winner, ...current.filter((item) => item.id !== winner.id)]);
+			setPlayerName('');
+			setStarted(false);
+			setFound([]);
+			setSeconds(0);
+			setClick(null);
+		} catch {
+			setWinnerError("Could not save your result. Please try again.");
+		} finally {
+			setSavingWinner(false);
+		}
+	}
+
 	if (!started) return (
 		<section className="game-page">
 			<div className="game-intro">
@@ -154,22 +193,14 @@ export default function Game() {
 				<div className="scoreboard__row scoreboard__row--head">
 					<span>Player</span><span>Date</span><span>Time</span>
 				</div>
-				<div className="scoreboard__row">
-				{winners.length > 0 && (winners.map(winner => 
-						<>
-							<span>
-								{winner.name}
-							</span>
-							<span>
-								{formatDate(winner.createdAt)}
-							</span>
-							<span>
-								{formatTime(winner.timeMs)}
-							</span>
-						</>
-					))
-				}
-				</div>
+				{winners.map((winner) => (
+					<div className="scoreboard__row" key={winner.id}>
+						<span>{winner.name}</span>
+						<span>{formatDate(winner.createdAt)}</span>
+						<span>{formatTime(Math.floor(winner.timeMs / 1000))}</span>
+					</div>
+				))}
+				{winners.length === 0 && <p className="scoreboard__empty">No completed searches yet.</p>}
 			</div>
 		</section>
 	);
@@ -212,7 +243,7 @@ export default function Game() {
 						alt={`Scene ${Number(gameId) + 1}`}
 					/>
 
-					{/* marcadores permanentes dos personagens já encontrados */}
+					{/* marcadores dos personagens já encontrados */}
 					{found.map((f) => (
 						<div
 							key={f.name}
@@ -255,7 +286,7 @@ export default function Game() {
 				</div>
 			</div>
 
-			{/* feedback rápido (acertou / falhou) */}
+			{/* feedback (acertou / falhou) */}
 			{message && (
 				<div
 					role="status"
@@ -271,9 +302,23 @@ export default function Game() {
 					<div className="game-finish__content">
 						<h2 className="text-xl font-bold">You found them all!</h2>
 						<p className="game-finish__time">{formatTime(seconds)}</p>
-						<Link href="/" className="button-primary">
-							Back to levels
-						</Link>
+						<form className="game-finish__form" onSubmit={handleRegisterWinner}>
+							<label htmlFor="player-name">Your name</label>
+							<input
+								id="player-name"
+								name="name"
+								autoComplete="name"
+								maxLength={80}
+								required
+								value={playerName}
+								onChange={(event) => setPlayerName(event.target.value)}
+								disabled={savingWinner}
+							/>
+							{winnerError && <p className="game-finish__error" role="alert">{winnerError}</p>}
+							<button className="button-primary" type="submit" disabled={savingWinner}>
+								{savingWinner ? "Saving..." : "Save result"}
+							</button>
+						</form>
 					</div>
 				</div>
 			)}
