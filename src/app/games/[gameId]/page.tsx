@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getLevel } from "@/utils/levelsGame";
 import { useEffect, useState, type MouseEvent } from "react";
-import { guess } from "@/api/api";
+import { guess, getWinners, type Winner } from "@/api/api";
 
 type Point = { x: number; y: number }; // valores entre 0 e 1
 type FoundChar = Point & { name: string };
@@ -14,6 +14,14 @@ function formatTime(total: number) {
 	const m = String(Math.floor(total / 60)).padStart(2, "0");
 	const s = String(total % 60).padStart(2, "0");
 	return `${m}:${s}`;
+}
+
+function formatDate(date: string) {
+	return new Intl.DateTimeFormat("en", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	}).format(new Date(date));
 }
 
 function CharacterCard({ name, imgSrc, found = false }: { name: string; imgSrc: string; found?: boolean }) {
@@ -38,10 +46,24 @@ export default function Game() {
 	const [seconds, setSeconds] = useState<number>(0);
 	const [message, setMessage] = useState<Message | null>(null);
 	const router = useRouter();
+	const [winners, setWinners] = useState<Winner[]>([]);
 
 	const level = getLevel(Number(gameId));
 	const total = level?.characters.length ?? 0;
 	const finished = total > 0 && found.length === total;
+
+	useEffect(() => {
+		if (started) return;
+
+		let cancelled = false;
+		getWinners(parseInt(gameId, 10)).then((all) => {
+			if (!cancelled) setWinners(all);
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [gameId, started]);
 
 	// timer: corre só depois do Start e para quando encontrar todos
 	useEffect(() => {
@@ -133,7 +155,20 @@ export default function Game() {
 					<span>Player</span><span>Date</span><span>Time</span>
 				</div>
 				<div className="scoreboard__row">
-					<span>Igris</span><span>28/09/2026</span><span>01:02</span>
+				{winners.length > 0 && (winners.map(winner => 
+						<>
+							<span>
+								{winner.name}
+							</span>
+							<span>
+								{formatDate(winner.createdAt)}
+							</span>
+							<span>
+								{formatTime(winner.timeMs)}
+							</span>
+						</>
+					))
+				}
 				</div>
 			</div>
 		</section>
