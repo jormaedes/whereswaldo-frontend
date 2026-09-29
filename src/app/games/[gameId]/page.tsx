@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getLevel } from "@/utils/levelsGame";
 import { useEffect, useState, type MouseEvent } from "react";
+import { guess } from "@/api/api";
 
 type Point = { x: number; y: number }; // valores entre 0 e 1
 type FoundChar = Point & { name: string };
@@ -78,21 +79,21 @@ export default function Game() {
 	async function handleChose(name: string) {
 		if (!click) return;
 
-		// const result = await anyfunctionfetchapi({
-		// 	gameId: Number(gameId),
-		// 	characterName: name,
-		// 	x: click.x,
-		// 	y: click.y,
-		// });
-		//
-		// if (result.correct) {
-		// 	// a API devolve as coordenadas certas, usamos essas para o marcador
-		// 	markFound(name, { x: result.x, y: result.y });
-		// } else {
-		// 	setMessage({ text: `${name} is not there. Try again!`, ok: false });
-		// }
-
-		console.log(`anyfunctionfetchapi(${gameId}, ${name}, ${click.x.toFixed(4)}, ${click.y.toFixed(4)})`);
+		const result = await guess({
+			gameId: Number(gameId),
+			characterName: name,
+			x: click.x,
+			y: click.y,
+		});
+		
+		if (result.correct) {
+			markFound(name, {
+				x: Number(result.x ?? click.x),
+				y: Number(result.y ?? click.y),
+			});
+		} else {
+			setMessage({ text: `${name} is not there. Try again!`, ok: false });
+		}
 		setClick(null);
 	}
 
